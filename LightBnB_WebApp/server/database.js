@@ -1,13 +1,5 @@
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-const { Pool } = require('pg');
 
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-});
+const pool = require('./index.js');
 
 /// Users
 
@@ -151,12 +143,6 @@ const getAllProperties = function(options, limit = 10) {
     queryString += `${modifier} owner_id = $${queryParams.length}
     `;
   }
-
-/*   if (queryParams.length > 0) {
-    queryString += `and `;
-  } else {
-    queryString += `where `;
-  } */
 
   if (options.minimum_price_per_night &&  options.maximum_price_per_night) {
     if (queryParams.length > 0) {

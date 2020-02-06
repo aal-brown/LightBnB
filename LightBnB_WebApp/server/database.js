@@ -218,11 +218,34 @@ const getAllProperties = function(options, limit = 10) {
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
-}
+  const values = [];
+  console.log(property,Object.keys(property).length)
+  for (let i = 0; i < Object.keys(property).length; i++) {
+    values.push(Object.values(property)[i]);
+  }
+  console.log(values)
+  return pool.query(`
+  insert into properties (
+    title,
+    description,
+    number_of_bedrooms,
+    number_of_bathrooms,
+    parking_spaces,
+    cost_per_night,
+    thumbnail_photo_url,
+    cover_photo_url,
+    street,
+    country,
+    city,
+    province,
+    post_code,
+    owner_id
+    )
+  values ($1, $2, $3, $4, $5, $6, $7, $8 ,$9, $10, $11, $12, $13, $14)
+  returning *;
+  `,values)
+    .then((res) => res.rows[0]);
+};
 exports.addProperty = addProperty;
 
 

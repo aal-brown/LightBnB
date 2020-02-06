@@ -90,42 +90,13 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 
-/*
-ORIGINAL FUNCTION HANDLING JSON
 const getAllProperties = function(options, limit = 10) {
-  const limitedProperties = {};
-  for (let i = 1; i <= limit; i++) {
-    limitedProperties[i] = properties[i];
-  }
-  return Promise.resolve(limitedProperties);
-}
-exports.getAllProperties = getAllProperties; */
-
-/*
-MY ATTEMPT
-const selectParam = "*";
-const limit = 10;
-const values = [`${selectParam}`,`${limit}`];
-
-const queryString = `
-SELECT $1
-FROM properties
-LIMIT $2
-`;
-
-const getAllProperties = function(query, valuesArr) {
-  pool.query(query,valuesArr)
-    .then((res) => {
-      console.log(res.rows);
-    });
-}; */
-
-const getAllProperties = function(options, limit = 10) {
+  limit = 10;
   const queryParams = [];
   let queryString = `
   SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
-  JOIN property_reviews on properties.id = property_reviews.property_id
+  LEFT JOIN property_reviews on properties.id = property_reviews.property_id
   `;
   
   if (options.city) {
@@ -136,11 +107,7 @@ const getAllProperties = function(options, limit = 10) {
 
   if (options.owner_id) {
     queryParams.push(options.owner_id);
-    let modifier = 'where';
-    if (queryParams.length > 0) {
-      modifier = 'and';
-    }
-    queryString += `${modifier} owner_id = $${queryParams.length}
+    queryString += `where owner_id = $${queryParams.length}
     `;
   }
 
@@ -205,11 +172,10 @@ const getAllProperties = function(options, limit = 10) {
  */
 const addProperty = function(property) {
   const values = [];
-  console.log(property,Object.keys(property).length)
   for (let i = 0; i < Object.keys(property).length; i++) {
     values.push(Object.values(property)[i]);
   }
-  console.log(values)
+  values[5] *= 100;
   return pool.query(`
   insert into properties (
     title,
